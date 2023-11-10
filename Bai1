@@ -1,0 +1,66 @@
+import numpy as np
+
+def giai_he_phuong_trinh(A, B, method='inv'):
+    if method == 'inv':
+        try:
+            A_inv = np.linalg.inv(A)
+            X = np.dot(A_inv, B)
+            return X
+        except np.linalg.LinAlgError as e:
+            if "matran" in str(e):
+                return []
+            else:
+                raise e
+    elif method == 'det':
+        det_A = np.linalg.det(A)
+        if abs(det_A) < 1e-6:
+            return []  # Hệ phương trình vô nghiệm hoặc có vô số nghiệm
+        else:
+            X = np.linalg.solve(A, B)
+            return X
+    elif method == 'gauss_jordan':
+        augmented_matrix = np.column_stack((A, B))
+        X = np.linalg.solve(A, B)
+        return X
+    elif method == 'lstsq':
+        X, _, _, _ = np.linalg.lstsq(A, B)
+        return X
+    else:
+        raise ValueError("Phương pháp không hợp lệ.")
+
+# Nhập số phương trình và số ẩn từ người dùng
+n = int(input("Nhập số phương trình: "))
+m = int(input("Nhập số ẩn: "))
+
+# Khởi tạo ma trận hệ số A và vector b
+A = np.zeros((n, m))
+B = np.zeros(n)
+
+# Nhập giá trị cho ma trận A và vector B
+for i in range(n):
+    print(f"Nhập phương trình thứ {i + 1}:")
+    for j in range(m):
+        A[i][j] = float(input(f"Nhập hệ số a[{i + 1},{j + 1}]: "))
+    B[i] = float(input(f"Nhập b[{i + 1}]: "))
+
+# Lựa chọn phương pháp giải hệ phương trình
+print("Chọn phương pháp giải hệ phương trình:")
+print("1. Giải bằng ma trận nghịch đảo")
+print("2. Giải bằng định thức")
+print("3. Giải bằng phương pháp Gauss-Jordan")
+print("4. Giải bằng phương pháp bình phương tối tiểu")
+method_choice = input("Nhập số tương ứng với phương pháp bạn chọn: ")
+
+methods = {'1': 'inv', '2': 'det', '3': 'gauss_jordan', '4': 'lstsq'}
+chosen_method = methods.get(method_choice)
+
+# Gọi hàm để giải hệ phương trình
+X = giai_he_phuong_trinh(A, B, chosen_method)
+
+if len(X) > 0:
+    print("Nghiệm của hệ phương trình:")
+    print(X)
+elif len(X) == 0:
+    print("Hệ phương trình có vô số nghiệm hoặc vô nghiệm.")
+else:
+    print("Hệ phương trình vô nghiệm.")
